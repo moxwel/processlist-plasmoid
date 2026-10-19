@@ -1,0 +1,24 @@
+{
+    "KPlugin": {
+        "Id": "cl.moxwel.processlist.@MODE@",
+        "Name": "Process List (@LABEL@)",
+        "Description": "@LABEL@ usage with a list of the most resource-hungry processes",
+        "Icon": "@ICON@",
+        "Category": "System Information",
+        "License": "GPL-3.0-or-later",
+        "Version": "1.0.0",
+        "Authors": [
+            {
+                "Name": "moxwel",
+                "Email": "moxwelderg@gmail.com"
+            }
+        ],
+        "Website": "https://github.com/moxwel/processlist-plasmoid",
+        "BugReportUrl": "https://github.com/moxwel/processlist-plasmoid/issues"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.systemmonitor"
+    ],
+    "KPackageStructure": "Plasma/Applet"
+}

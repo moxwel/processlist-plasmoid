@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+    <group name="General">
+
+        <entry name="interval" type="Int">
+            <label>Seconds between samples.</label>
+            <default>3</default>
+            <min>1</min>
+        </entry>
+
+        <entry name="icon" type="String">
+            <label>Name of the icon shown in the compact representation.</label>
+            <default>@ICON@</default>
+        </entry>
+
+        <entry name="count" type="Int">
+            <label>How many processes the list shows.</label>
+            <default>5</default>
+            <min>1</min>
+            <max>10</max>
+        </entry>
+
+        <entry name="display" type="Int">
+            <label>Compact view: 0 icon, 1 percentage, 2 icon and percentage, 3 name and percentage.</label>
+            <default>2</default>
+            <min>0</min>
+            <max>3</max>
+        </entry>
+
+        <entry name="showSystemProcesses" type="Bool">
+            <label>Whether the process list includes processes owned by other users.</label>
+            <default>false</default>
+        </entry>
+
+    </group>
+</kcfg>
