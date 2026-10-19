@@ -14,12 +14,14 @@ KCM.SimpleKCM {
     property alias cfg_count: countSpinBox.value
     property alias cfg_display: displayComboBox.currentIndex
     property alias cfg_showSystemProcesses: showSystemProcessesCheckBox.checked
+    property alias cfg_confirmStop: confirmStopCheckBox.checked
 
     property string cfg_iconDefault
     property int cfg_intervalDefault
     property int cfg_countDefault
     property int cfg_displayDefault
     property bool cfg_showSystemProcessesDefault
+    property bool cfg_confirmStopDefault
 
     readonly property int maxIntervalSec: 600
     readonly property int maxProcessCount: 10
@@ -120,6 +122,11 @@ KCM.SimpleKCM {
             id: showSystemProcessesCheckBox
             Kirigami.FormData.label: i18n("Processes:")
             text: i18n("Show system processes")
+        }
+
+        QQC2.CheckBox {
+            id: confirmStopCheckBox
+            text: i18n("Ask before stopping a process")
         }
     }
 }

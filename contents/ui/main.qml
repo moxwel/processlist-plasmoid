@@ -38,6 +38,9 @@ PlasmoidItem {
     property bool isPaused: false
     property string stopError: ""
     readonly property bool hasStopError: stopError !== ""
+    property var pendingStop: null
+    readonly property bool hasPendingStop: pendingStop !== null
+    readonly property string stopQuestion: pendingStop ? i18n("Stop %1 (%2)?", pendingStop.name, pendingStop.pid) : ""
 
     // widget mode, filled in by install.sh, CPU or RAM
     readonly property bool isCpu: "@MODE@" === "cpu"
@@ -56,6 +59,7 @@ PlasmoidItem {
     readonly property bool isPercentDisplayed: displayMode !== displayIconOnly
     readonly property bool isNameDisplayed: displayMode === displayNameAndPercent
     readonly property bool isShowingSystemProcesses: Plasmoid.configuration.showSystemProcesses
+    readonly property bool shouldConfirmStop: Plasmoid.configuration.confirmStop
 
     // figures as text
     readonly property string usageTextDecimal: usagePercent.toFixed(1) + "%"
@@ -79,6 +83,26 @@ PlasmoidItem {
 
     function togglePopup(): void {
         expanded = !expanded;
+    }
+
+    function requestStop(process): void {
+        stopError = "";
+        const stop = { pid: process.pid, name: process.name, listUptimeSec: listUptimeSec };
+        if (shouldConfirmStop) {
+            pendingStop = stop;
+            return;
+        }
+        runner.stopProcess(stop);
+    }
+
+    function confirmStop(): void {
+        const stop = pendingStop;
+        pendingStop = null;
+        runner.stopProcess(stop);
+    }
+
+    function cancelStop(): void {
+        pendingStop = null;
     }
 
     function applySample(source, data): void {
@@ -175,19 +199,22 @@ PlasmoidItem {
             connectSource(refreshSource);
         }
 
-        function stopProcess(pid): void {
-            root.stopError = "";
-            const listCentisec = Math.round(root.listUptimeSec * 100);
-            const startJiffies = `$(sed 's/.*) //' /proc/${pid}/stat 2>/dev/null | cut -d' ' -f20)`;
+        function stopProcess(stop): void {
+            const listCentisec = Math.round(stop.listUptimeSec * 100);
+            const startJiffies = `$(sed 's/.*) //' /proc/${stop.pid}/stat 2>/dev/null | cut -d' ' -f20)`;
             const listJiffies = `$((${listCentisec} * $(getconf CLK_TCK) / 100))`;
             const startCheck = `[ -n "$start" ] && [ "$start" -le ${listJiffies} ] || exit ${otherProcessExitCode}`;
-            connectSource(`start=${startJiffies}; ${startCheck}; kill ${pid}${stopMarker}`);
+            connectSource(`start=${startJiffies}; ${startCheck}; kill ${stop.pid}${stopMarker}`);
         }
     }
 
     Plasmoid.icon: appIcon
     toolTipMainText: tooltipText
-    onExpandedChanged: if (!expanded) stopError = ""
+    onExpandedChanged: {
+        if (expanded) return;
+        stopError = "";
+        pendingStop = null;
+    }
 
     compactRepresentation: MouseArea {
         id: compactArea
@@ -361,7 +388,7 @@ PlasmoidItem {
                         text: i18n("Stop %1 (%2)", row.modelData.name, row.modelData.pid)
                         PlasmaComponents.ToolTip.text: text
                         PlasmaComponents.ToolTip.visible: hovered
-                        onClicked: runner.stopProcess(row.modelData.pid)
+                        onClicked: root.requestStop(row.modelData)
                     }
                 }
 
@@ -375,10 +402,35 @@ PlasmoidItem {
             }
         }
 
-        footer: Kirigami.InlineMessage {
-            type: Kirigami.MessageType.Error
-            text: root.stopError
-            visible: root.hasStopError
+        footer: ColumnLayout {
+            spacing: 0
+            visible: root.hasPendingStop || root.hasStopError
+
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                type: Kirigami.MessageType.Warning
+                text: root.stopQuestion
+                visible: root.hasPendingStop
+                actions: [
+                    Kirigami.Action {
+                        icon.name: "media-playback-stop"
+                        text: i18n("Stop")
+                        onTriggered: root.confirmStop()
+                    },
+                    Kirigami.Action {
+                        icon.name: "dialog-cancel"
+                        text: i18n("Cancel")
+                        onTriggered: root.cancelStop()
+                    }
+                ]
+            }
+
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                type: Kirigami.MessageType.Error
+                text: root.stopError
+                visible: root.hasStopError
+            }
         }
     }
 }

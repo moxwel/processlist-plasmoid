@@ -33,5 +33,10 @@
             <default>false</default>
         </entry>
 
+        <entry name="confirmStop" type="Bool">
+            <label>Whether stopping a process asks for confirmation first.</label>
+            <default>true</default>
+        </entry>
+
     </group>
 </kcfg>
