@@ -23,6 +23,7 @@ const CPU_IDLE_PATTERN = /([\d.]+)\s+id/;
 const MEM_LINE_PATTERN = /(\w)\w*B Mem\s*:\s*([\d.]+)\s+total,\s*[\d.]+\s+free,\s*([\d.]+)\s+used/;
 const PROCESS_ROW_PATTERN = /^\s*(\d+)\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)\s+\S+\s+\S+\s+([\d.]+)\s+[\d.]+\s+\S+\s+(.+)$/;
 const OWN_TOP_PATTERN = /\btop\b.*-bn2/;
+const UPTIME_PATTERN = /^([\d.]+)\s+[\d.]+$/m;
 
 const IDLE_FIELD = 4;
 const IOWAIT_FIELD = 5;
@@ -89,7 +90,14 @@ function parseTopOutput(output, isCpu, limit) {
     const lines = allLines.slice(lastIterationStart);
     const summary = isCpu ? readCpuSummary(lines[0]) : readMemorySummary(lines);
     const processes = readProcesses(lines, isCpu, limit);
-    return { usagePercent: summary.usagePercent, memoryText: summary.memoryText, processes: processes };
+    const uptimeMatch = output.match(UPTIME_PATTERN);
+    const uptimeSec = uptimeMatch ? parseFloat(uptimeMatch[1]) : 0;
+    return {
+        usagePercent: summary.usagePercent,
+        memoryText: summary.memoryText,
+        processes: processes,
+        uptimeSec: uptimeSec,
+    };
 }
 
 function parseCpuJiffies(output) {

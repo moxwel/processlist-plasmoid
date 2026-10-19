@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Process List\n"
 "Report-Msgid-Bugs-To: https://github.com/moxwel/processlist-plasmoid/issues\n"
-"POT-Creation-Date: 2026-10-19 11:28-0300\n"
+"POT-Creation-Date: 2026-10-19 13:32-0300\n"
 "PO-Revision-Date: 2026-10-19 11:30-0300\n"
 "Last-Translator: moxwel\n"
 "Language-Team: Spanish\n"
@@ -13,120 +13,124 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: contents/config/config.qml:13
+#: contents/config/config.qml:6
 msgid "General"
 msgstr "General"
 
-#: contents/ui/configGeneral.qml:49
+#: contents/ui/configGeneral.qml:41
 msgid "Choose icon"
 msgstr "Elegir icono"
 
-#: contents/ui/configGeneral.qml:68
+#: contents/ui/configGeneral.qml:60
 msgid "Reset to the default icon"
 msgstr "Restablecer el icono predeterminado"
 
-#: contents/ui/configGeneral.qml:81
+#: contents/ui/configGeneral.qml:73
 msgid "Icon:"
 msgstr "Icono:"
 
-#: contents/ui/configGeneral.qml:91
+#: contents/ui/configGeneral.qml:83
 msgid "Update interval:"
 msgstr "Intervalo de actualización:"
 
-#: contents/ui/configGeneral.qml:94
+#: contents/ui/configGeneral.qml:86
 msgid "%1 second"
 msgid_plural "%1 seconds"
 msgstr[0] "%1 segundo"
 msgstr[1] "%1 segundos"
 
-#: contents/ui/configGeneral.qml:100
+#: contents/ui/configGeneral.qml:92
 msgid "Processes count:"
 msgstr "Cantidad de procesos:"
 
-#: contents/ui/configGeneral.qml:107
+#: contents/ui/configGeneral.qml:99
 msgid "Display:"
 msgstr "Mostrar:"
 
-#: contents/ui/configGeneral.qml:109
+#: contents/ui/configGeneral.qml:101
 msgid "Icon only"
 msgstr "Solo icono"
 
-#: contents/ui/configGeneral.qml:110
+#: contents/ui/configGeneral.qml:102
 msgid "Percentage only"
 msgstr "Solo porcentaje"
 
-#: contents/ui/configGeneral.qml:111
+#: contents/ui/configGeneral.qml:103
 msgid "Icon and percentage"
 msgstr "Icono y porcentaje"
 
-#: contents/ui/configGeneral.qml:112
+#: contents/ui/configGeneral.qml:104
 msgid "Text and percentage"
 msgstr "Texto y porcentaje"
 
-#: contents/ui/configGeneral.qml:117
+#: contents/ui/configGeneral.qml:109
 msgid "With \"Icon only\", the widget stops polling until opened."
 msgstr "Con \"Solo icono\", el widget deja de actualizarse hasta que se abre."
 
-#: contents/ui/configGeneral.qml:129
+#: contents/ui/configGeneral.qml:121
 msgid "Processes:"
 msgstr "Procesos:"
 
-#: contents/ui/configGeneral.qml:130
+#: contents/ui/configGeneral.qml:122
 msgid "Show system processes"
 msgstr "Mostrar procesos del sistema"
 
-#: contents/ui/main.qml:42
+#: contents/ui/main.qml:33
 msgid "Waiting for the first sample..."
 msgstr "Esperando la primera muestra..."
 
-#: contents/ui/main.qml:53
+#: contents/ui/main.qml:45
 msgid "CPU"
 msgstr "CPU"
 
-#: contents/ui/main.qml:53
+#: contents/ui/main.qml:45
 msgid "RAM"
 msgstr "RAM"
 
-#: contents/ui/main.qml:74
+#: contents/ui/main.qml:66
 msgid "Sys"
 msgstr "Sist"
 
-#: contents/ui/main.qml:74
+#: contents/ui/main.qml:66
 msgid "User"
 msgstr "Usuario"
 
-#: contents/ui/main.qml:101
+#: contents/ui/main.qml:94
 msgid "top produced no parsable rows"
 msgstr "top no devolvió filas legibles"
 
-#: contents/ui/main.qml:167
+#: contents/ui/main.qml:166
 msgid "Could not stop the process"
 msgstr "No se pudo detener el proceso"
 
-#: contents/ui/main.qml:243
+#: contents/ui/main.qml:167
+msgid "The process ended or changed since the list was taken"
+msgstr "El proceso terminó o cambió desde que se tomó la lista"
+
+#: contents/ui/main.qml:248
 msgid "Open System Monitor"
 msgstr "Abrir el Monitor del sistema"
 
-#: contents/ui/main.qml:253
+#: contents/ui/main.qml:258
 msgid "Resume list updates"
 msgstr "Reanudar la actualización de la lista"
 
-#: contents/ui/main.qml:253
+#: contents/ui/main.qml:258
 msgid "Pause list updates"
 msgstr "Pausar la actualización de la lista"
 
-#: contents/ui/main.qml:264
+#: contents/ui/main.qml:269
 msgid "Refresh now"
 msgstr "Actualizar ahora"
 
-#: contents/ui/main.qml:274
+#: contents/ui/main.qml:279
 msgid "Keep open"
 msgstr "Mantener abierto"
 
-#: contents/ui/main.qml:356
+#: contents/ui/main.qml:361
 msgid "Stop %1 (%2)"
 msgstr "Detener %1 (%2)"
 
-#: contents/ui/main.qml:368
+#: contents/ui/main.qml:372
 msgid "No data"
 msgstr "Sin datos"

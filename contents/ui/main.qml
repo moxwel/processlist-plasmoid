@@ -32,6 +32,7 @@ PlasmoidItem {
     property string memoryText: ""
     property string lastError: i18n("Waiting for the first sample...")
     property var previousCpuJiffies: null
+    property real listUptimeSec: 0
 
     // state of the list
     property bool isPaused: false
@@ -88,6 +89,7 @@ PlasmoidItem {
             root.usagePercent = sample.usagePercent;
             root.memoryText = sample.memoryText;
             root.processes = sample.processes;
+            root.listUptimeSec = sample.uptimeSec;
             const hasProcesses = sample.processes.length > 0;
             const errorText = data.stderr || i18n("top produced no parsable rows");
             root.lastError = hasProcesses ? "" : errorText;
@@ -122,7 +124,7 @@ PlasmoidItem {
         readonly property string userFilter: root.isShowingSystemProcesses ? "" : "-u $(id -un) "
         readonly property string sortColumn: root.isCpu ? "%CPU" : "%MEM"
         readonly property string topOptions: `-d ${topDelaySec} -w ${topWidthColumns} -c ${userFilter}-o ${sortColumn}`
-        readonly property string listCommand: topEnvironment + " top -bn2 " + topOptions
+        readonly property string listCommand: topEnvironment + " top -bn2 " + topOptions + "; cat /proc/uptime"
 
         readonly property string cpuCommand: "head -1 /proc/stat"
         readonly property string memoryCommand: "grep -E '^Mem(Total|Available)' /proc/meminfo"
@@ -144,6 +146,10 @@ PlasmoidItem {
         property string refreshSource: ""
         readonly property bool isBusy: connectedSources.length > 0
 
+        // a stop only kills a process that already existed when the list was taken, so a reused PID is spared
+        readonly property string stopMarker: " # stop"
+        readonly property int otherProcessExitCode: 3
+
         engine: "executable"
         onNewData: (source, data) => {
             disconnectSource(source);
@@ -152,10 +158,14 @@ PlasmoidItem {
                 root.applySample(source, data);
                 return;
             }
-            const isStop = source.startsWith("kill ");
+            const isStop = source.endsWith(stopMarker);
             if (!isStop) return;
-            const hasFailed = data["exit code"] !== 0;
-            const errorText = (data.stderr || "").trim() || i18n("Could not stop the process");
+            const exitCode = data["exit code"];
+            const hasFailed = exitCode !== 0;
+            const isOtherProcess = exitCode === otherProcessExitCode;
+            const failureText = (data.stderr || "").trim() || i18n("Could not stop the process");
+            const otherProcessText = i18n("The process ended or changed since the list was taken");
+            const errorText = isOtherProcess ? otherProcessText : failureText;
             if (hasFailed) root.stopError = errorText;
             refresh();
         }
@@ -167,7 +177,11 @@ PlasmoidItem {
 
         function stopProcess(pid): void {
             root.stopError = "";
-            connectSource("kill " + pid);
+            const listCentisec = Math.round(root.listUptimeSec * 100);
+            const startJiffies = `$(sed 's/.*) //' /proc/${pid}/stat 2>/dev/null | cut -d' ' -f20)`;
+            const listJiffies = `$((${listCentisec} * $(getconf CLK_TCK) / 100))`;
+            const startCheck = `[ -n "$start" ] && [ "$start" -le ${listJiffies} ] || exit ${otherProcessExitCode}`;
+            connectSource(`start=${startJiffies}; ${startCheck}; kill ${pid}${stopMarker}`);
         }
     }
 
@@ -347,7 +361,6 @@ PlasmoidItem {
                         text: i18n("Stop %1 (%2)", row.modelData.name, row.modelData.pid)
                         PlasmaComponents.ToolTip.text: text
                         PlasmaComponents.ToolTip.visible: hovered
-                        enabled: !root.isPaused
                         onClicked: runner.stopProcess(row.modelData.pid)
                     }
                 }
