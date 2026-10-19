@@ -26,6 +26,16 @@ It installs as two widgets built from the same code, **Process List (CPU)** and 
 
 ## Install
 
+### GitHub Releases
+
+Download the [latest release](https://github.com/moxwel/processlist-plasmoid/releases/latest).
+
+Install `processlist-cpu.plasmoid` and `processlist-ram.plasmoid` from *Add or Manage Widgets...* > *Get New* > *Install Widget From Local File...*.
+
+Restart plasmashell or log out and back in if it does not appear immediately.
+
+### Manual
+
 ```sh
 ./install.sh
 ```
