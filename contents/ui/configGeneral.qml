@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 
-import org.kde.plasma.plasmoid
 import org.kde.kirigami as Kirigami
 import org.kde.kcmutils as KCM
 import org.kde.iconthemes as KIconThemes
@@ -10,67 +9,69 @@ import org.kde.iconthemes as KIconThemes
 KCM.SimpleKCM {
     id: root
 
-    property string cfg_icon: Plasmoid.configuration.icon
+    property alias cfg_icon: iconPicker.currentIcon
     property alias cfg_interval: intervalSpinBox.value
     property alias cfg_count: countSpinBox.value
     property alias cfg_display: displayComboBox.currentIndex
     property alias cfg_showSystemProcesses: showSystemProcessesCheckBox.checked
 
-    property string cfg_iconDefault: ""
-    property int cfg_intervalDefault: 3
-    property int cfg_countDefault: 5
-    property int cfg_displayDefault: 2
-    property bool cfg_showSystemProcessesDefault: false
+    property string cfg_iconDefault
+    property int cfg_intervalDefault
+    property int cfg_countDefault
+    property int cfg_displayDefault
+    property bool cfg_showSystemProcessesDefault
 
     readonly property int maxIntervalSec: 600
+    readonly property int maxProcessCount: 10
     readonly property real hintOpacity: 0.7
 
-    component IconPicker: QQC2.Button {
+    component IconPicker: RowLayout {
         id: picker
 
         property string currentIcon
-        signal picked(string iconName)
+        property string defaultIcon
+        readonly property bool isDefault: currentIcon === defaultIcon
 
-        implicitWidth: Kirigami.Units.iconSizes.large + Kirigami.Units.largeSpacing * 2
-        implicitHeight: implicitWidth
+        spacing: Kirigami.Units.smallSpacing
 
-        onClicked: iconDialog.open()
+        QQC2.Button {
+            implicitWidth: Kirigami.Units.iconSizes.large + Kirigami.Units.largeSpacing * 2
+            implicitHeight: implicitWidth
 
-        Kirigami.Icon {
-            anchors.centerIn: parent
-            width: Kirigami.Units.iconSizes.large
-            height: width
-            source: picker.currentIcon
+            Accessible.name: i18n("Choose icon")
+            onClicked: iconDialog.open()
+
+            Kirigami.Icon {
+                anchors.centerIn: parent
+                width: Kirigami.Units.iconSizes.large
+                height: width
+                source: picker.currentIcon
+            }
+
+            KIconThemes.IconDialog {
+                id: iconDialog
+                onAccepted: picker.currentIcon = iconName
+            }
         }
 
-        KIconThemes.IconDialog {
-            id: iconDialog
-            onIconNameChanged: picker.picked(iconName)
+        QQC2.Button {
+            icon.name: "edit-reset"
+            display: QQC2.AbstractButton.IconOnly
+            text: i18n("Reset to the default icon")
+            enabled: !picker.isDefault
+            onClicked: picker.currentIcon = picker.defaultIcon
+
+            QQC2.ToolTip.text: text
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
         }
     }
 
     Kirigami.FormLayout {
-        anchors.fill: parent
-
-        RowLayout {
+        IconPicker {
+            id: iconPicker
             Kirigami.FormData.label: i18n("Icon:")
-            spacing: Kirigami.Units.smallSpacing
-
-            IconPicker {
-                currentIcon: root.cfg_icon
-                onPicked: iconName => root.cfg_icon = iconName
-            }
-
-            QQC2.Button {
-                icon.name: "edit-reset"
-                display: QQC2.AbstractButton.IconOnly
-                text: i18n("Reset to the default icon")
-                QQC2.ToolTip.text: text
-                QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                enabled: root.cfg_icon !== root.cfg_iconDefault
-                onClicked: root.cfg_icon = root.cfg_iconDefault
-            }
+            defaultIcon: root.cfg_iconDefault
         }
 
         Item {
@@ -90,7 +91,7 @@ KCM.SimpleKCM {
             id: countSpinBox
             Kirigami.FormData.label: i18n("Processes count:")
             from: 1
-            to: 10
+            to: root.maxProcessCount
         }
 
         QQC2.ComboBox {
