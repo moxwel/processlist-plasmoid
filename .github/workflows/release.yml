@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y gettext zip
+
+      - name: Check tag matches version
+        run: |
+          VERSION=$(sed -n 's/.*"Version": *"\([^"]*\)".*/\1/p' metadata.json)
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match Version $VERSION in metadata.json"
+              exit 1
+          fi
+
+      - name: Build
+        run: ./build.sh
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" build/*.plasmoid --title "Process List $GITHUB_REF_NAME" --generate-notes
