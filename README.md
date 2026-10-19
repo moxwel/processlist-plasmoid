@@ -26,6 +26,12 @@ It installs as two widgets built from the same code, **Process List (CPU)** and 
 
 ## Install
 
+### KDE Store / Plasma Add-ons / OpenDesktop.org
+
+Search for **"Process List"** in *Add or Manage Widgets...* > *Get New* > *Download New Plasma Widgets...*.
+
+Or download [Process List - CPU](https://www.opendesktop.org/p/2379678) and [Process List - RAM](https://www.opendesktop.org/p/2379679) from KDE Store/OpenDesktop.org.
+
 ### GitHub Releases
 
 Download the [latest release](https://github.com/moxwel/processlist-plasmoid/releases/latest).
