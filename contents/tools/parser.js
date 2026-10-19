@@ -26,6 +26,7 @@ const OWN_TOP_PATTERN = /\btop\b.*-bn2/;
 
 const IDLE_FIELD = 4;
 const IOWAIT_FIELD = 5;
+const STEAL_FIELD = 8;
 
 function parseKiB(text) {
     const suffix = text.charAt(text.length - 1).toLowerCase();
@@ -93,8 +94,9 @@ function parseTopOutput(output, isCpu, limit) {
 
 function parseCpuJiffies(output) {
     const fields = output.trim().split(/\s+/);
+    const timeFields = fields.slice(1, STEAL_FIELD + 1);
     let total = 0;
-    for (let i = 1; i < fields.length; i++) total += parseFloat(fields[i]);
+    for (const field of timeFields) total += parseFloat(field);
     const idle = parseFloat(fields[IDLE_FIELD]) + parseFloat(fields[IOWAIT_FIELD]);
     return { total: total, idle: idle };
 }

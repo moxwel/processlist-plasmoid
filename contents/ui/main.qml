@@ -26,13 +26,17 @@ PlasmoidItem {
     readonly property real tooltipWidthUnits: 30
     readonly property int tooltipDelayMs: 250
 
-    // latest sample, written by applySample(), and the pause button
+    // latest sample, written by applySample()
     property real usagePercent: 0
     property var processes: []
     property string memoryText: ""
     property string lastError: i18n("Waiting for the first sample...")
     property var previousCpuJiffies: null
+
+    // state of the list
     property bool isPaused: false
+    property string stopError: ""
+    readonly property bool hasStopError: stopError !== ""
 
     // widget mode, filled in by install.sh, CPU or RAM
     readonly property bool isCpu: "@MODE@" === "cpu"
@@ -108,10 +112,13 @@ PlasmoidItem {
         readonly property real topDelaySec: 0.2
         readonly property int topWidthColumns: 512
 
+        // ignore the user's toprc, so top always prints the layout the parser expects
+        readonly property string topEnvironment: "HOME=/nonexistent XDG_CONFIG_HOME=/nonexistent LC_ALL=C"
+
         readonly property string userFilter: root.isShowingSystemProcesses ? "" : "-u $(id -un) "
         readonly property string sortColumn: root.isCpu ? "%CPU" : "%MEM"
         readonly property string topOptions: `-d ${topDelaySec} -w ${topWidthColumns} -c ${userFilter}-o ${sortColumn}`
-        readonly property string listCommand: "LC_ALL=C top -bn2 " + topOptions
+        readonly property string listCommand: topEnvironment + " top -bn2 " + topOptions
 
         readonly property string cpuCommand: "head -1 /proc/stat"
         readonly property string memoryCommand: "grep -E '^Mem(Total|Available)' /proc/meminfo"
@@ -124,6 +131,7 @@ PlasmoidItem {
         interval: isIdle ? 0 : Math.max(1, Plasmoid.configuration.interval) * 1000
         connectedSources: isIdle ? [] : [command]
         onNewData: (source, data) => root.applySample(source, data)
+        onConnectedSourcesChanged: root.previousCpuJiffies = null
     }
 
     Plasma5Support.DataSource {
@@ -136,17 +144,32 @@ PlasmoidItem {
         onNewData: (source, data) => {
             disconnectSource(source);
             const isRefresh = source === refreshSource;
-            if (isRefresh) root.applySample(source, data);
+            if (isRefresh) {
+                root.applySample(source, data);
+                return;
+            }
+            const isStop = source.startsWith("kill ");
+            if (!isStop) return;
+            const hasFailed = data["exit code"] !== 0;
+            const errorText = (data.stderr || "").trim() || i18n("Could not stop the process");
+            if (hasFailed) root.stopError = errorText;
+            refresh();
         }
 
         function refresh(): void {
             refreshSource = poller.listCommand + " # " + Date.now();
             connectSource(refreshSource);
         }
+
+        function stopProcess(pid): void {
+            root.stopError = "";
+            connectSource("kill " + pid);
+        }
     }
 
     Plasmoid.icon: appIcon
     toolTipMainText: tooltipText
+    onExpandedChanged: if (!expanded) stopError = ""
 
     compactRepresentation: MouseArea {
         Layout.minimumWidth: layout.implicitWidth
@@ -303,7 +326,8 @@ PlasmoidItem {
                         text: i18n("Stop %1 (%2)", row.modelData.name, row.modelData.pid)
                         PlasmaComponents.ToolTip.text: text
                         PlasmaComponents.ToolTip.visible: hovered
-                        onClicked: runner.connectSource("kill " + row.modelData.pid)
+                        enabled: !root.isPaused
+                        onClicked: runner.stopProcess(row.modelData.pid)
                     }
                 }
 
@@ -315,6 +339,12 @@ PlasmoidItem {
                     explanation: root.lastError
                 }
             }
+        }
+
+        footer: Kirigami.InlineMessage {
+            type: Kirigami.MessageType.Error
+            text: root.stopError
+            visible: root.hasStopError
         }
     }
 }
