@@ -1,14 +1,7 @@
 import QtQuick
-import QtQuick.Layouts
 
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
-import org.kde.plasma.components as PlasmaComponents
-import org.kde.plasma.extras as PlasmaExtras
-import org.kde.plasma.plasma5support as Plasma5Support
-import org.kde.kirigami as Kirigami
-
-import "../tools/parser.js" as Parser
 
 PlasmoidItem {
     id: root
@@ -19,35 +12,13 @@ PlasmoidItem {
     readonly property int displayIconAndPercent: 2
     readonly property int displayNameAndPercent: 3
 
-    // look of the popup
-    readonly property real secondaryOpacity: 0.6
-    readonly property real headerHeightUnits: 4
-    readonly property real rowHeightUnits: 2.6
-    readonly property real tooltipWidthUnits: 30
-    readonly property int tooltipDelayMs: 250
-
-    // latest sample, written by applySample()
-    property real usagePercent: 0
-    property var processes: []
-    property string memoryText: ""
-    property string lastError: i18n("Waiting for the first sample...")
-    property var previousCpuJiffies: null
-    property real listUptimeSec: 0
-
     // state of the list
     property bool isPaused: false
-    property string stopError: ""
-    readonly property bool hasStopError: stopError !== ""
-    property var pendingStop: null
-    readonly property bool hasPendingStop: pendingStop !== null
-    readonly property string stopQuestion: pendingStop ? i18n("Stop %1 (%2)?", pendingStop.name, pendingStop.pid) : ""
 
     // widget mode, filled in by install.sh, CPU or RAM
     readonly property bool isCpu: "@MODE@" === "cpu"
     readonly property string appIcon: Plasmoid.configuration.icon || (isCpu ? "cpu" : "memory")
     readonly property string resourceName: isCpu ? i18n("CPU") : i18n("RAM")
-    readonly property int processCount: Plasmoid.configuration.count
-    readonly property real popupHeightUnits: headerHeightUnits + rowHeightUnits * processCount
 
     // on desktop the list is always on screen; in a panel only while the popup is open
     readonly property bool isOnDesktop: Plasmoid.formFactor === PlasmaCore.Types.Planar
@@ -59,16 +30,15 @@ PlasmoidItem {
     readonly property bool isPercentDisplayed: displayMode !== displayIconOnly
     readonly property bool isNameDisplayed: displayMode === displayNameAndPercent
     readonly property bool isShowingSystemProcesses: Plasmoid.configuration.showSystemProcesses
-    readonly property bool shouldConfirmStop: Plasmoid.configuration.confirmStop
 
     // figures as text
-    readonly property string usageTextDecimal: usagePercent.toFixed(1) + "%"
-    readonly property string usageTextRounded: Math.round(usagePercent) + "%"
+    readonly property string usageTextDecimal: processMonitor.usagePercent.toFixed(1) + "%"
+    readonly property string usageTextRounded: Math.round(processMonitor.usagePercent) + "%"
     readonly property string intervalText: Plasmoid.configuration.interval + "s"
 
     // popup header
     readonly property string processSourceText: isShowingSystemProcesses ? i18n("Sys") : i18n("User")
-    readonly property string memorySuffix: isCpu ? "" : "  (" + memoryText + ")"
+    readonly property string memorySuffix: isCpu ? "" : "  (" + processMonitor.memoryText + ")"
     readonly property string headerTitle: resourceName + " [" + processSourceText + "]"
     readonly property string headerFigures: usageTextDecimal + " (" + intervalText + ")" + memorySuffix
     readonly property string headerText: headerTitle + " — " + headerFigures
@@ -85,352 +55,27 @@ PlasmoidItem {
         expanded = !expanded;
     }
 
-    function requestStop(process): void {
-        stopError = "";
-        const stop = { pid: process.pid, name: process.name, listUptimeSec: listUptimeSec };
-        if (shouldConfirmStop) {
-            pendingStop = stop;
-            return;
-        }
-        runner.stopProcess(stop);
-    }
-
-    function confirmStop(): void {
-        const stop = pendingStop;
-        pendingStop = null;
-        runner.stopProcess(stop);
-    }
-
-    function cancelStop(): void {
-        pendingStop = null;
-    }
-
-    function applySample(source, data): void {
-        const output = data.stdout || "";
-        const isListSample = source.indexOf("top ") >= 0;
-        if (isListSample) {
-            const sample = Parser.parseTopOutput(output, root.isCpu, root.processCount);
-            root.usagePercent = sample.usagePercent;
-            root.memoryText = sample.memoryText;
-            root.processes = sample.processes;
-            root.listUptimeSec = sample.uptimeSec;
-            const hasProcesses = sample.processes.length > 0;
-            const errorText = data.stderr || i18n("top produced no parsable rows");
-            root.lastError = hasProcesses ? "" : errorText;
-            return;
-        }
-        if (root.isCpu) {
-            const jiffies = Parser.parseCpuJiffies(output);
-            const previous = root.previousCpuJiffies;
-            const canComputeUsage = previous !== null && jiffies.total > previous.total;
-            if (canComputeUsage) {
-                const idleShare = (jiffies.idle - previous.idle) / (jiffies.total - previous.total);
-                root.usagePercent = 100 * (1 - idleShare);
-            }
-            root.previousCpuJiffies = jiffies;
-            return;
-        }
-        const memory = Parser.parseMemInfo(output);
-        if (!memory) return;
-        root.usagePercent = memory.usagePercent;
-        root.memoryText = memory.memoryText;
-    }
-
-    Plasma5Support.DataSource {
-        id: poller
-
-        readonly property real topDelaySec: 0.2
-        readonly property int topWidthColumns: 512
-
-        // ignore the user's toprc, so top always prints the layout the parser expects
-        readonly property string topEnvironment: "HOME=/nonexistent XDG_CONFIG_HOME=/nonexistent LC_ALL=C"
-
-        readonly property string userFilter: root.isShowingSystemProcesses ? "" : "-u $(id -un) "
-        readonly property string sortColumn: root.isCpu ? "%CPU" : "%MEM"
-        readonly property string topOptions: `-d ${topDelaySec} -w ${topWidthColumns} -c ${userFilter}-o ${sortColumn}`
-        readonly property string listCommand: topEnvironment + " top -bn2 " + topOptions + "; cat /proc/uptime"
-
-        readonly property string cpuCommand: "head -1 /proc/stat"
-        readonly property string memoryCommand: "grep -E '^Mem(Total|Available)' /proc/meminfo"
-        readonly property string cheapCommand: root.isCpu ? cpuCommand : memoryCommand
-
-        readonly property string command: root.isListNeeded ? listCommand : cheapCommand
-        readonly property bool isIdle: !root.isListNeeded && !root.isPercentDisplayed
-
-        engine: "executable"
-        interval: isIdle ? 0 : Math.max(1, Plasmoid.configuration.interval) * 1000
-        connectedSources: isIdle ? [] : [command]
-        onNewData: (source, data) => root.applySample(source, data)
-        onConnectedSourcesChanged: root.previousCpuJiffies = null
-    }
-
-    Plasma5Support.DataSource {
-        id: runner
-
-        property string refreshSource: ""
-        readonly property bool isBusy: connectedSources.length > 0
-
-        // a stop only kills a process that already existed when the list was taken, so a reused PID is spared
-        readonly property string stopMarker: " # stop"
-        readonly property int otherProcessExitCode: 3
-
-        engine: "executable"
-        onNewData: (source, data) => {
-            disconnectSource(source);
-            const isRefresh = source === refreshSource;
-            if (isRefresh) {
-                root.applySample(source, data);
-                return;
-            }
-            const isStop = source.endsWith(stopMarker);
-            if (!isStop) return;
-            const exitCode = data["exit code"];
-            const hasFailed = exitCode !== 0;
-            const isOtherProcess = exitCode === otherProcessExitCode;
-            const failureText = (data.stderr || "").trim() || i18n("Could not stop the process");
-            const otherProcessText = i18n("The process ended or changed since the list was taken");
-            const errorText = isOtherProcess ? otherProcessText : failureText;
-            if (hasFailed) root.stopError = errorText;
-            refresh();
-        }
-
-        function refresh(): void {
-            refreshSource = poller.listCommand + " # " + Date.now();
-            connectSource(refreshSource);
-        }
-
-        function stopProcess(stop): void {
-            const listCentisec = Math.round(stop.listUptimeSec * 100);
-            const startJiffies = `$(sed 's/.*) //' /proc/${stop.pid}/stat 2>/dev/null | cut -d' ' -f20)`;
-            const listJiffies = `$((${listCentisec} * $(getconf CLK_TCK) / 100))`;
-            const startCheck = `[ -n "$start" ] && [ "$start" -le ${listJiffies} ] || exit ${otherProcessExitCode}`;
-            connectSource(`start=${startJiffies}; ${startCheck}; kill ${stop.pid}${stopMarker}`);
-        }
+    ProcessMonitor {
+        id: processMonitor
+        isCpu: root.isCpu
+        isListNeeded: root.isListNeeded
+        isPercentDisplayed: root.isPercentDisplayed
+        isShowingSystemProcesses: root.isShowingSystemProcesses
+        shouldConfirmStop: Plasmoid.configuration.confirmStop
+        processCount: Plasmoid.configuration.count
+        intervalSec: Plasmoid.configuration.interval
     }
 
     Plasmoid.icon: appIcon
     toolTipMainText: tooltipText
-    onExpandedChanged: {
-        if (expanded) return;
-        stopError = "";
-        pendingStop = null;
+    onExpandedChanged: if (!expanded) processMonitor.clearStop()
+
+    compactRepresentation: CompactRepresentation {
+        plasmoidItem: root
     }
 
-    compactRepresentation: MouseArea {
-        id: compactArea
-
-        Layout.minimumWidth: layout.implicitWidth
-        hoverEnabled: true
-        onClicked: root.togglePopup()
-
-        activeFocusOnTab: true
-        Accessible.name: Plasmoid.title
-        Accessible.description: root.tooltipText
-        Accessible.role: Accessible.Button
-        Accessible.onPressAction: root.togglePopup()
-
-        Keys.onPressed: event => {
-            const isActivationKey = [Qt.Key_Space, Qt.Key_Enter, Qt.Key_Return, Qt.Key_Select].includes(event.key);
-            if (!isActivationKey) return;
-            root.togglePopup();
-            event.accepted = true;
-        }
-
-        RowLayout {
-            id: layout
-            anchors.fill: parent
-            spacing: Kirigami.Units.smallSpacing
-
-            Kirigami.Icon {
-                source: root.appIcon
-                active: compactArea.containsMouse || compactArea.activeFocus
-                visible: root.isIconDisplayed
-                Layout.fillHeight: true
-                Layout.preferredWidth: height
-            }
-            PlasmaComponents.Label {
-                text: root.compactText
-                visible: root.isPercentDisplayed
-            }
-        }
-    }
-
-    fullRepresentation: PlasmaExtras.Representation {
-        Layout.minimumWidth: Kirigami.Units.gridUnit * 22
-        Layout.minimumHeight: Kirigami.Units.gridUnit * 12
-        Layout.preferredWidth: Kirigami.Units.gridUnit * 26
-        Layout.preferredHeight: Kirigami.Units.gridUnit * root.popupHeightUnits
-        collapseMarginsHint: true
-
-        header: PlasmaExtras.PlasmoidHeading {
-            contentItem: RowLayout {
-                PlasmaExtras.Heading {
-                    Layout.fillWidth: true
-                    level: 3
-                    text: root.headerText
-                }
-                PlasmaComponents.ToolButton {
-                    icon.name: "utilities-system-monitor"
-                    display: PlasmaComponents.AbstractButton.IconOnly
-                    text: i18n("Open System Monitor")
-                    PlasmaComponents.ToolTip.text: text
-                    PlasmaComponents.ToolTip.visible: hovered
-                    onClicked: runner.connectSource("plasma-systemmonitor >/dev/null 2>&1 &")
-                }
-                PlasmaComponents.ToolButton {
-                    icon.name: "media-playback-pause"
-                    checkable: true
-                    checked: root.isPaused
-                    display: PlasmaComponents.AbstractButton.IconOnly
-                    text: root.isPaused ? i18n("Resume list updates") : i18n("Pause list updates")
-                    PlasmaComponents.ToolTip.text: text
-                    PlasmaComponents.ToolTip.visible: hovered
-                    onToggled: {
-                        root.isPaused = checked;
-                        checked = Qt.binding(() => root.isPaused);
-                    }
-                }
-                PlasmaComponents.ToolButton {
-                    icon.name: "view-refresh"
-                    display: PlasmaComponents.AbstractButton.IconOnly
-                    text: i18n("Refresh now")
-                    PlasmaComponents.ToolTip.text: text
-                    PlasmaComponents.ToolTip.visible: hovered
-                    enabled: !runner.isBusy
-                    onClicked: runner.refresh()
-                }
-                PlasmaComponents.ToolButton {
-                    icon.name: "window-pin"
-                    checkable: true
-                    display: PlasmaComponents.AbstractButton.IconOnly
-                    text: i18n("Keep open")
-                    PlasmaComponents.ToolTip.text: text
-                    PlasmaComponents.ToolTip.visible: hovered
-                    onCheckedChanged: root.hideOnWindowDeactivate = !checked
-                }
-            }
-        }
-
-        PlasmaComponents.ScrollView {
-            anchors.fill: parent
-            PlasmaComponents.ScrollBar.horizontal.policy: PlasmaComponents.ScrollBar.AlwaysOff
-
-            contentItem: ListView {
-                id: list
-                leftMargin: Kirigami.Units.smallSpacing
-                rightMargin: Kirigami.Units.smallSpacing
-                model: root.processes
-                clip: true
-                spacing: Kirigami.Units.smallSpacing
-                reuseItems: true
-
-                delegate: RowLayout {
-                    id: row
-
-                    required property var modelData
-
-                    width: list.width - list.leftMargin - list.rightMargin
-                    spacing: Kirigami.Units.smallSpacing
-
-                    HoverHandler { id: rowHover }
-
-                    PlasmaComponents.ToolTip {
-                        id: commandTip
-                        text: row.modelData.command
-                        delay: root.tooltipDelayMs
-                        visible: rowHover.hovered && !stopButton.hovered
-
-                        contentItem: Item {
-                            implicitWidth: Math.min(tipLabel.maxWidth, tipLabel.contentWidth)
-                            implicitHeight: tipLabel.implicitHeight
-
-                            PlasmaComponents.Label {
-                                id: tipLabel
-                                readonly property real maxWidth: Kirigami.Units.gridUnit * root.tooltipWidthUnits
-                                text: commandTip.text
-                                wrapMode: Text.Wrap
-                                onLineLaidOut: line => {
-                                    const isTooWide = line.implicitWidth > maxWidth;
-                                    if (isTooWide) line.width = maxWidth;
-                                }
-                            }
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 0
-                        PlasmaComponents.Label {
-                            Layout.fillWidth: true
-                            text: row.modelData.name
-                            elide: Text.ElideRight
-                        }
-                        PlasmaComponents.Label {
-                            Layout.fillWidth: true
-                            text: row.modelData.command
-                            font: Kirigami.Theme.smallFont
-                            opacity: root.secondaryOpacity
-                            elide: Text.ElideRight
-                        }
-                    }
-
-                    PlasmaComponents.Label {
-                        text: row.modelData.pid
-                        opacity: root.secondaryOpacity
-                    }
-                    PlasmaComponents.Label {
-                        text: row.modelData.usageText
-                    }
-                    PlasmaComponents.ToolButton {
-                        id: stopButton
-                        icon.name: "media-playback-stop"
-                        display: PlasmaComponents.AbstractButton.IconOnly
-                        text: i18n("Stop %1 (%2)", row.modelData.name, row.modelData.pid)
-                        PlasmaComponents.ToolTip.text: text
-                        PlasmaComponents.ToolTip.visible: hovered
-                        onClicked: root.requestStop(row.modelData)
-                    }
-                }
-
-                PlasmaExtras.PlaceholderMessage {
-                    anchors.centerIn: parent
-                    width: parent.width - Kirigami.Units.gridUnit * 4
-                    visible: list.count === 0
-                    text: i18n("No data")
-                    explanation: root.lastError
-                }
-            }
-        }
-
-        footer: ColumnLayout {
-            spacing: 0
-            visible: root.hasPendingStop || root.hasStopError
-
-            Kirigami.InlineMessage {
-                Layout.fillWidth: true
-                type: Kirigami.MessageType.Warning
-                text: root.stopQuestion
-                visible: root.hasPendingStop
-                actions: [
-                    Kirigami.Action {
-                        icon.name: "media-playback-stop"
-                        text: i18n("Stop")
-                        onTriggered: root.confirmStop()
-                    },
-                    Kirigami.Action {
-                        icon.name: "dialog-cancel"
-                        text: i18n("Cancel")
-                        onTriggered: root.cancelStop()
-                    }
-                ]
-            }
-
-            Kirigami.InlineMessage {
-                Layout.fillWidth: true
-                type: Kirigami.MessageType.Error
-                text: root.stopError
-                visible: root.hasStopError
-            }
-        }
+    fullRepresentation: FullRepresentation {
+        plasmoidItem: root
+        monitor: processMonitor
     }
 }

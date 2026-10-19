@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Process List\n"
 "Report-Msgid-Bugs-To: https://github.com/moxwel/processlist-plasmoid/issues\n"
-"POT-Creation-Date: 2026-10-19 13:27-0300\n"
+"POT-Creation-Date: 2026-10-19 13:43-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,74 +84,74 @@ msgstr ""
 msgid "Ask before stopping a process"
 msgstr ""
 
-#: contents/ui/main.qml:33
-msgid "Waiting for the first sample..."
-msgstr ""
-
-#: contents/ui/main.qml:43
-msgid "Stop %1 (%2)?"
-msgstr ""
-
-#: contents/ui/main.qml:48
-msgid "CPU"
-msgstr ""
-
-#: contents/ui/main.qml:48
-msgid "RAM"
-msgstr ""
-
-#: contents/ui/main.qml:70
-msgid "Sys"
-msgstr ""
-
-#: contents/ui/main.qml:70
-msgid "User"
-msgstr ""
-
-#: contents/ui/main.qml:118
-msgid "top produced no parsable rows"
-msgstr ""
-
-#: contents/ui/main.qml:190
-msgid "Could not stop the process"
-msgstr ""
-
-#: contents/ui/main.qml:191
-msgid "The process ended or changed since the list was taken"
-msgstr ""
-
-#: contents/ui/main.qml:275
+#: contents/ui/FullRepresentation.qml:36
 msgid "Open System Monitor"
 msgstr ""
 
-#: contents/ui/main.qml:285
+#: contents/ui/FullRepresentation.qml:46
 msgid "Resume list updates"
 msgstr ""
 
-#: contents/ui/main.qml:285
+#: contents/ui/FullRepresentation.qml:46
 msgid "Pause list updates"
 msgstr ""
 
-#: contents/ui/main.qml:296
+#: contents/ui/FullRepresentation.qml:57
 msgid "Refresh now"
 msgstr ""
 
-#: contents/ui/main.qml:306
+#: contents/ui/FullRepresentation.qml:67
 msgid "Keep open"
 msgstr ""
 
-#: contents/ui/main.qml:388
-msgid "Stop %1 (%2)"
-msgstr ""
-
-#: contents/ui/main.qml:399
+#: contents/ui/FullRepresentation.qml:97
 msgid "No data"
 msgstr ""
 
-#: contents/ui/main.qml:417
+#: contents/ui/FullRepresentation.qml:115
 msgid "Stop"
 msgstr ""
 
-#: contents/ui/main.qml:422
+#: contents/ui/FullRepresentation.qml:120
 msgid "Cancel"
+msgstr ""
+
+#: contents/ui/main.qml:21
+msgid "CPU"
+msgstr ""
+
+#: contents/ui/main.qml:21
+msgid "RAM"
+msgstr ""
+
+#: contents/ui/main.qml:40
+msgid "Sys"
+msgstr ""
+
+#: contents/ui/main.qml:40
+msgid "User"
+msgstr ""
+
+#: contents/ui/ProcessMonitor.qml:23
+msgid "Waiting for the first sample..."
+msgstr ""
+
+#: contents/ui/ProcessMonitor.qml:32
+msgid "Stop %1 (%2)?"
+msgstr ""
+
+#: contents/ui/ProcessMonitor.qml:78
+msgid "top produced no parsable rows"
+msgstr ""
+
+#: contents/ui/ProcessMonitor.qml:150
+msgid "Could not stop the process"
+msgstr ""
+
+#: contents/ui/ProcessMonitor.qml:151
+msgid "The process ended or changed since the list was taken"
+msgstr ""
+
+#: contents/ui/ProcessRow.qml:73
+msgid "Stop %1 (%2)"
 msgstr ""
