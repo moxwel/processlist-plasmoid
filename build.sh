@@ -26,11 +26,12 @@ for mode in cpu ram; do
     rm -rf "$PACKAGE_DIR" "$OUTPUT"
     mkdir -p "$PACKAGE_DIR/contents"
     cp -r contents/* "$PACKAGE_DIR/contents/"
+    cp LICENSE "$PACKAGE_DIR/"
     sed -i "s/@MODE@/$mode/g" "$PACKAGE_DIR"/contents/ui/*.qml
     sed -i "s/@ICON@/$ICON/" "$PACKAGE_DIR/contents/config/main.xml"
     sed "s/@MODE@/$mode/g; s/@LABEL@/$LABEL/g; s/@ICON@/$ICON/g" metadata.json > "$PACKAGE_DIR/metadata.json"
     translate/compile.sh "$PACKAGE_DIR"
 
-    (cd "$PACKAGE_DIR" && zip -qr "../processlist-$mode.plasmoid" metadata.json contents)
+    (cd "$PACKAGE_DIR" && zip -qr "../processlist-$mode.plasmoid" metadata.json contents LICENSE)
     echo "Built $OUTPUT"
 done
