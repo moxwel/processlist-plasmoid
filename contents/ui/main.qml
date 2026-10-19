@@ -76,6 +76,10 @@ PlasmoidItem {
     readonly property string compactNamePrefix: isNameDisplayed ? resourceName + ": " : ""
     readonly property string compactText: compactNamePrefix + usageTextRounded
 
+    function togglePopup(): void {
+        expanded = !expanded;
+    }
+
     function applySample(source, data): void {
         const output = data.stdout || "";
         const isListSample = source.indexOf("top ") >= 0;
@@ -172,8 +176,24 @@ PlasmoidItem {
     onExpandedChanged: if (!expanded) stopError = ""
 
     compactRepresentation: MouseArea {
+        id: compactArea
+
         Layout.minimumWidth: layout.implicitWidth
-        onClicked: root.expanded = !root.expanded
+        hoverEnabled: true
+        onClicked: root.togglePopup()
+
+        activeFocusOnTab: true
+        Accessible.name: Plasmoid.title
+        Accessible.description: root.tooltipText
+        Accessible.role: Accessible.Button
+        Accessible.onPressAction: root.togglePopup()
+
+        Keys.onPressed: event => {
+            const isActivationKey = [Qt.Key_Space, Qt.Key_Enter, Qt.Key_Return, Qt.Key_Select].includes(event.key);
+            if (!isActivationKey) return;
+            root.togglePopup();
+            event.accepted = true;
+        }
 
         RowLayout {
             id: layout
@@ -182,6 +202,7 @@ PlasmoidItem {
 
             Kirigami.Icon {
                 source: root.appIcon
+                active: compactArea.containsMouse || compactArea.activeFocus
                 visible: root.isIconDisplayed
                 Layout.fillHeight: true
                 Layout.preferredWidth: height
