@@ -1,0 +1,137 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Process List package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Process List\n"
+"Report-Msgid-Bugs-To: https://github.com/moxwel/processlist-plasmoid/issues\n"
+"POT-Creation-Date: 2026-10-19 11:28-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: contents/config/config.qml:13
+msgid "General"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:49
+msgid "Choose icon"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:68
+msgid "Reset to the default icon"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:81
+msgid "Icon:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:91
+msgid "Update interval:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:94
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/configGeneral.qml:100
+msgid "Processes count:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:107
+msgid "Display:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:109
+msgid "Icon only"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:110
+msgid "Percentage only"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:111
+msgid "Icon and percentage"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:112
+msgid "Text and percentage"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:117
+msgid "With \"Icon only\", the widget stops polling until opened."
+msgstr ""
+
+#: contents/ui/configGeneral.qml:129
+msgid "Processes:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml:130
+msgid "Show system processes"
+msgstr ""
+
+#: contents/ui/main.qml:42
+msgid "Waiting for the first sample..."
+msgstr ""
+
+#: contents/ui/main.qml:53
+msgid "CPU"
+msgstr ""
+
+#: contents/ui/main.qml:53
+msgid "RAM"
+msgstr ""
+
+#: contents/ui/main.qml:74
+msgid "Sys"
+msgstr ""
+
+#: contents/ui/main.qml:74
+msgid "User"
+msgstr ""
+
+#: contents/ui/main.qml:101
+msgid "top produced no parsable rows"
+msgstr ""
+
+#: contents/ui/main.qml:167
+msgid "Could not stop the process"
+msgstr ""
+
+#: contents/ui/main.qml:243
+msgid "Open System Monitor"
+msgstr ""
+
+#: contents/ui/main.qml:253
+msgid "Resume list updates"
+msgstr ""
+
+#: contents/ui/main.qml:253
+msgid "Pause list updates"
+msgstr ""
+
+#: contents/ui/main.qml:264
+msgid "Refresh now"
+msgstr ""
+
+#: contents/ui/main.qml:274
+msgid "Keep open"
+msgstr ""
+
+#: contents/ui/main.qml:356
+msgid "Stop %1 (%2)"
+msgstr ""
+
+#: contents/ui/main.qml:368
+msgid "No data"
+msgstr ""

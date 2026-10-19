@@ -2,7 +2,9 @@
     "KPlugin": {
         "Id": "cl.moxwel.processlist.@MODE@",
         "Name": "Process List (@LABEL@)",
+        "Name[es]": "Lista de procesos (@LABEL@)",
         "Description": "@LABEL@ usage with a list of the most resource-hungry processes",
+        "Description[es]": "Uso de @LABEL@ con una lista de los procesos que más recursos consumen",
         "Icon": "@ICON@",
         "Category": "System Information",
         "License": "GPL-3.0-or-later",
