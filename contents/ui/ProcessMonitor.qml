@@ -65,24 +65,24 @@ Item {
         pendingStop = null;
     }
 
+    function applyProcessList(output, errorOutput): void {
+        const sample = Parser.parseTopOutput(output, monitor.isCpu, monitor.processCount);
+        monitor.processes = sample.processes;
+        monitor.listUptimeSec = sample.uptimeSec;
+        const hasProcesses = sample.processes.length > 0;
+        const errorText = errorOutput || i18n("top produced no parsable rows");
+        monitor.lastError = hasProcesses ? "" : errorText;
+    }
+
     function applySample(source, data): void {
         const output = data.stdout || "";
         const isListSample = source.indexOf("top ") >= 0;
-        if (isListSample) {
-            const sample = Parser.parseTopOutput(output, monitor.isCpu, monitor.processCount);
-            monitor.usagePercent = sample.usagePercent;
-            monitor.memoryText = sample.memoryText;
-            monitor.processes = sample.processes;
-            monitor.listUptimeSec = sample.uptimeSec;
-            const hasProcesses = sample.processes.length > 0;
-            const errorText = data.stderr || i18n("top produced no parsable rows");
-            monitor.lastError = hasProcesses ? "" : errorText;
-            return;
-        }
+        if (isListSample) applyProcessList(output, data.stderr);
         if (monitor.isCpu) {
             const jiffies = Parser.parseCpuJiffies(output);
-            const previous = monitor.previousCpuJiffies;
-            const canComputeUsage = previous !== null && jiffies.total > previous.total;
+            if (!jiffies) return;
+            const previous = monitor.previousCpuJiffies || { total: 0, idle: 0 };
+            const canComputeUsage = jiffies.total > previous.total;
             if (canComputeUsage) {
                 const idleShare = (jiffies.idle - previous.idle) / (jiffies.total - previous.total);
                 monitor.usagePercent = 100 * (1 - idleShare);
@@ -108,20 +108,21 @@ Item {
         readonly property string userFilter: monitor.isShowingSystemProcesses ? "" : "-u $(id -un) "
         readonly property string sortColumn: monitor.isCpu ? "%CPU" : "%MEM"
         readonly property string topOptions: `-d ${topDelaySec} -w ${topWidthColumns} -c ${userFilter}-o ${sortColumn}`
-        readonly property string listCommand: topEnvironment + " top -bn2 " + topOptions + "; cat /proc/uptime"
+        readonly property string topCommand: topEnvironment + " top -bn2 " + topOptions
 
         readonly property string cpuCommand: "head -1 /proc/stat"
         readonly property string memoryCommand: "grep -E '^Mem(Total|Available)' /proc/meminfo"
-        readonly property string cheapCommand: monitor.isCpu ? cpuCommand : memoryCommand
+        readonly property string usageCommand: monitor.isCpu ? cpuCommand : memoryCommand
 
-        readonly property string command: monitor.isListNeeded ? listCommand : cheapCommand
+        readonly property string listCommand: topCommand + "; cat /proc/uptime; " + usageCommand
+
+        readonly property string command: monitor.isListNeeded ? listCommand : usageCommand
         readonly property bool isIdle: !monitor.isListNeeded && !monitor.isPercentDisplayed
 
         engine: "executable"
         interval: isIdle ? 0 : Math.max(1, monitor.intervalSec) * 1000
         connectedSources: isIdle ? [] : [command]
         onNewData: (source, data) => monitor.applySample(source, data)
-        onConnectedSourcesChanged: monitor.previousCpuJiffies = null
     }
 
     Plasma5Support.DataSource {

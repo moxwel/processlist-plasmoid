@@ -34,6 +34,8 @@ RowLayout {
                 readonly property real maxWidth: Kirigami.Units.gridUnit * row.tooltipWidthUnits
                 text: commandTip.text
                 wrapMode: Text.Wrap
+                Kirigami.Theme.colorSet: Kirigami.Theme.Tooltip
+                Kirigami.Theme.inherit: false
                 onLineLaidOut: line => {
                     const isTooWide = line.implicitWidth > maxWidth;
                     if (isTooWide) line.width = maxWidth;

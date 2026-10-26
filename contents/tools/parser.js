@@ -1,6 +1,6 @@
 /*
-    Parsers for the commands main.qml runs: top's batch output while the process list is on screen, and the
-    first lines of /proc/stat or /proc/meminfo while it is not. They keep no state, so .pragma library shares a
+    Parsers for the commands main.qml runs: top's batch output for the process list, and the first lines
+    of /proc/stat or /proc/meminfo for the usage figure. They keep no state, so .pragma library shares a
     single copy among every widget instance.
 */
 
@@ -19,8 +19,7 @@ const KIB_PER_SUFFIX = {
     e: 1024 * 1024 * KIB_PER_TIB,
 };
 
-const CPU_IDLE_PATTERN = /([\d.]+)\s+id/;
-const MEM_LINE_PATTERN = /(\w)\w*B Mem\s*:\s*([\d.]+)\s+total,\s*[\d.]+\s+free,\s*([\d.]+)\s+used/;
+const CPU_LINE_PATTERN = /^cpu\s.*$/m;
 const PROCESS_ROW_PATTERN = /^\s*(\d+)\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)\s+\S+\s+\S+\s+([\d.]+)\s+[\d.]+\s+\S+\s+(.+)$/;
 const OWN_TOP_PATTERN = /\btop\b.*-bn2/;
 const UPTIME_PATTERN = /^([\d.]+)\s+[\d.]+$/m;
@@ -41,26 +40,6 @@ function formatKiB(kib) {
     const isMiB = kib >= KIB_PER_MIB;
     if (isMiB) return (kib / KIB_PER_MIB).toFixed(0) + " MiB";
     return kib.toFixed(0) + " KiB";
-}
-
-function readCpuSummary(line) {
-    const idleMatch = line.match(CPU_IDLE_PATTERN);
-    const usagePercent = idleMatch ? 100 - parseFloat(idleMatch[1]) : 0;
-    return { usagePercent: usagePercent, memoryText: "" };
-}
-
-function readMemorySummary(lines) {
-    for (const line of lines) {
-        const memMatch = line.match(MEM_LINE_PATTERN);
-        if (!memMatch) continue;
-        const unit = memMatch[1];
-        const totalText = memMatch[2] + unit;
-        const usedText = memMatch[3] + unit;
-        const usagePercent = parseFloat(memMatch[3]) / parseFloat(memMatch[2]) * 100;
-        const memoryText = formatKiB(parseKiB(usedText)) + " / " + formatKiB(parseKiB(totalText));
-        return { usagePercent: usagePercent, memoryText: memoryText };
-    }
-    return { usagePercent: 0, memoryText: "" };
 }
 
 function readProcesses(lines, isCpu, limit) {
@@ -88,20 +67,16 @@ function parseTopOutput(output, isCpu, limit) {
         if (isCpuLine) lastIterationStart = i;
     }
     const lines = allLines.slice(lastIterationStart);
-    const summary = isCpu ? readCpuSummary(lines[0]) : readMemorySummary(lines);
     const processes = readProcesses(lines, isCpu, limit);
     const uptimeMatch = output.match(UPTIME_PATTERN);
     const uptimeSec = uptimeMatch ? parseFloat(uptimeMatch[1]) : 0;
-    return {
-        usagePercent: summary.usagePercent,
-        memoryText: summary.memoryText,
-        processes: processes,
-        uptimeSec: uptimeSec,
-    };
+    return { processes: processes, uptimeSec: uptimeSec };
 }
 
 function parseCpuJiffies(output) {
-    const fields = output.trim().split(/\s+/);
+    const cpuMatch = output.match(CPU_LINE_PATTERN);
+    if (!cpuMatch) return null;
+    const fields = cpuMatch[0].trim().split(/\s+/);
     const timeFields = fields.slice(1, STEAL_FIELD + 1);
     let total = 0;
     for (const field of timeFields) total += parseFloat(field);
