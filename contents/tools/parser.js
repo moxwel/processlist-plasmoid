@@ -20,7 +20,6 @@ const KIB_PER_SUFFIX = {
 };
 
 const CPU_IDLE_PATTERN = /([\d.]+)\s+id/;
-const MEM_LINE_PATTERN = /(\w)\w*B Mem\s*:\s*([\d.]+)\s+total,\s*[\d.]+\s+free,\s*([\d.]+)\s+used/;
 const PROCESS_ROW_PATTERN = /^\s*(\d+)\s+\S+\s+\S+\s+\S+\s+\S+\s+(\S+)\s+\S+\s+\S+\s+([\d.]+)\s+[\d.]+\s+\S+\s+(.+)$/;
 const OWN_TOP_PATTERN = /\btop\b.*-bn2/;
 const UPTIME_PATTERN = /^([\d.]+)\s+[\d.]+$/m;
@@ -49,18 +48,12 @@ function readCpuSummary(line) {
     return { usagePercent: usagePercent, memoryText: "" };
 }
 
-function readMemorySummary(lines) {
-    for (const line of lines) {
-        const memMatch = line.match(MEM_LINE_PATTERN);
-        if (!memMatch) continue;
-        const unit = memMatch[1];
-        const totalText = memMatch[2] + unit;
-        const usedText = memMatch[3] + unit;
-        const usagePercent = parseFloat(memMatch[3]) / parseFloat(memMatch[2]) * 100;
-        const memoryText = formatKiB(parseKiB(usedText)) + " / " + formatKiB(parseKiB(totalText));
-        return { usagePercent: usagePercent, memoryText: memoryText };
-    }
-    return { usagePercent: 0, memoryText: "" };
+function readMemorySummary(output) {
+    const memInfo = parseMemInfo(output);
+    const hasMemInfo = memInfo !== null;
+    const usagePercent = hasMemInfo ? memInfo.usagePercent : 0;
+    const memoryText = hasMemInfo ? memInfo.memoryText : "";
+    return { usagePercent: usagePercent, memoryText: memoryText };
 }
 
 function readProcesses(lines, isCpu, limit) {
@@ -88,7 +81,7 @@ function parseTopOutput(output, isCpu, limit) {
         if (isCpuLine) lastIterationStart = i;
     }
     const lines = allLines.slice(lastIterationStart);
-    const summary = isCpu ? readCpuSummary(lines[0]) : readMemorySummary(lines);
+    const summary = isCpu ? readCpuSummary(lines[0]) : readMemorySummary(output);
     const processes = readProcesses(lines, isCpu, limit);
     const uptimeMatch = output.match(UPTIME_PATTERN);
     const uptimeSec = uptimeMatch ? parseFloat(uptimeMatch[1]) : 0;

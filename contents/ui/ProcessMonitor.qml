@@ -108,11 +108,14 @@ Item {
         readonly property string userFilter: monitor.isShowingSystemProcesses ? "" : "-u $(id -un) "
         readonly property string sortColumn: monitor.isCpu ? "%CPU" : "%MEM"
         readonly property string topOptions: `-d ${topDelaySec} -w ${topWidthColumns} -c ${userFilter}-o ${sortColumn}`
-        readonly property string listCommand: topEnvironment + " top -bn2 " + topOptions + "; cat /proc/uptime"
+        readonly property string topCommand: topEnvironment + " top -bn2 " + topOptions
 
         readonly property string cpuCommand: "head -1 /proc/stat"
         readonly property string memoryCommand: "grep -E '^Mem(Total|Available)' /proc/meminfo"
         readonly property string cheapCommand: monitor.isCpu ? cpuCommand : memoryCommand
+
+        readonly property string listMemorySuffix: monitor.isCpu ? "" : "; " + memoryCommand
+        readonly property string listCommand: topCommand + "; cat /proc/uptime" + listMemorySuffix
 
         readonly property string command: monitor.isListNeeded ? listCommand : cheapCommand
         readonly property bool isIdle: !monitor.isListNeeded && !monitor.isPercentDisplayed
