@@ -101,6 +101,10 @@ This project has been developed with the assistance of AI tools. AI was used to 
 
 **ALL AI-generated content** has been **manually reviewed** and **edited by me (moxwel)**, to ensure code accuracy, readability, and quality with my personal standard coding practices.
 
+## Contributing
+
+Fork the repo, branch from `develop` and open a PR against `develop` of this repository. Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#examples) with descriptive messages. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 GPL-3.0-or-later. See [LICENSE](LICENSE).
