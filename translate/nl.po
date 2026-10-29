@@ -37,7 +37,7 @@ msgstr "Pictogram:"
 
 #: contents/ui/configGeneral.qml:85
 msgid "Update interval:"
-msgstr "Bijwerken, iedere:"
+msgstr "Bijwerkinterval:"
 
 #: contents/ui/configGeneral.qml:88
 msgid "%1 second"
@@ -71,7 +71,7 @@ msgstr "Tekst en percentage"
 
 #: contents/ui/configGeneral.qml:111
 msgid "With \"Icon only\", the widget stops polling until opened."
-msgstr "Let op: als alleen het pictogram wordt getoond, wordt de widget pas na het openen bijgewerkt."
+msgstr "Als alleen het pictogram wordt getoond, wordt de widget pas na het openen bijgewerkt."
 
 #: contents/ui/configGeneral.qml:123
 msgid "Processes:"
@@ -99,7 +99,7 @@ msgstr "Bijwerken pauzeren"
 
 #: contents/ui/FullRepresentation.qml:57
 msgid "Refresh now"
-msgstr "Nu herladen"
+msgstr "Nu vernieuwen"
 
 #: contents/ui/FullRepresentation.qml:67
 msgid "Keep open"
@@ -107,7 +107,7 @@ msgstr "Openhouden"
 
 #: contents/ui/FullRepresentation.qml:97
 msgid "No data"
-msgstr "Er zijn geen gegevens"
+msgstr "Geen gegevens"
 
 #: contents/ui/FullRepresentation.qml:115
 msgid "Stop"
@@ -119,11 +119,11 @@ msgstr "Annuleren"
 
 #: contents/ui/main.qml:21
 msgid "CPU"
-msgstr "Cpu"
+msgstr "CPU"
 
 #: contents/ui/main.qml:21
 msgid "RAM"
-msgstr "Ram"
+msgstr "RAM"
 
 #: contents/ui/main.qml:40
 msgid "Sys"
@@ -135,7 +135,7 @@ msgstr "Gebruiker"
 
 #: contents/ui/ProcessMonitor.qml:23
 msgid "Waiting for the first sample..."
-msgstr "Bezig met wachten op eerste gegevens…"
+msgstr "Bezig met wachten op eerste gegevens..."
 
 #: contents/ui/ProcessMonitor.qml:32
 msgid "Stop '%1' (PID: %2)?"
@@ -151,7 +151,7 @@ msgstr "Het proces kan niet worden afgebroken"
 
 #: contents/ui/ProcessMonitor.qml:152
 msgid "The process ended or changed since the list was taken"
-msgstr "Het proces is sinds het samenstellen van de lijst reeds afgebroken of gewijzigd"
+msgstr "Het proces is sinds het samenstellen van de lijst al afgebroken of gewijzigd"
 
 #: contents/ui/ProcessRow.qml:75
 msgid "Stop '%1' (PID: %2)"
