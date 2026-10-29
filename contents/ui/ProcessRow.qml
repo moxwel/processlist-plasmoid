@@ -72,7 +72,7 @@ RowLayout {
         id: stopButton
         icon.name: "media-playback-stop"
         display: PlasmaComponents.AbstractButton.IconOnly
-        text: i18n("Stop %1 (%2)", row.modelData.name, row.modelData.pid)
+        text: i18n("Stop '%1' (PID: %2)", row.modelData.name, row.modelData.pid)
         PlasmaComponents.ToolTip.text: text
         PlasmaComponents.ToolTip.visible: hovered
         onClicked: row.monitor.requestStop(row.modelData)

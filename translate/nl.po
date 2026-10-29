@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Process List\n"
 "Report-Msgid-Bugs-To: https://github.com/moxwel/processlist-plasmoid/issues\n"
-"POT-Creation-Date: 2026-10-19 13:43-0300\n"
+"POT-Creation-Date: 2026-10-29 12:40-0300\n"
 "PO-Revision-Date: 2026-10-28 10:43+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -138,21 +138,21 @@ msgid "Waiting for the first sample..."
 msgstr "Bezig met wachten op eerste gegevens…"
 
 #: contents/ui/ProcessMonitor.qml:32
-msgid "Stop %1 (%2)?"
-msgstr "Weet je zeker dat je ‘%1’ (%2) wilt afbreken?"
+msgid "Stop '%1' (PID: %2)?"
+msgstr "Weet je zeker dat je '%1' (PID: %2) wilt afbreken?"
 
-#: contents/ui/ProcessMonitor.qml:78
+#: contents/ui/ProcessMonitor.qml:73
 msgid "top produced no parsable rows"
 msgstr "top heeft geen bruikbare rijen aangeleverd"
 
-#: contents/ui/ProcessMonitor.qml:150
+#: contents/ui/ProcessMonitor.qml:151
 msgid "Could not stop the process"
 msgstr "Het proces kan niet worden afgebroken"
 
-#: contents/ui/ProcessMonitor.qml:151
+#: contents/ui/ProcessMonitor.qml:152
 msgid "The process ended or changed since the list was taken"
 msgstr "Het proces is sinds het samenstellen van de lijst reeds afgebroken of gewijzigd"
 
-#: contents/ui/ProcessRow.qml:73
-msgid "Stop %1 (%2)"
-msgstr "‘%1’ (%2) afbreken"
+#: contents/ui/ProcessRow.qml:75
+msgid "Stop '%1' (PID: %2)"
+msgstr "'%1' (PID: %2) afbreken"

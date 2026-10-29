@@ -29,7 +29,7 @@ Item {
     readonly property bool hasStopError: stopError !== ""
     property var pendingStop: null
     readonly property bool hasPendingStop: pendingStop !== null
-    readonly property string stopQuestion: pendingStop ? i18n("Stop %1 (%2)?", pendingStop.name, pendingStop.pid) : ""
+    readonly property string stopQuestion: pendingStop ? i18n("Stop '%1' (PID: %2)?", pendingStop.name, pendingStop.pid) : ""
     readonly property bool isBusy: runner.isBusy
 
     function refresh(): void {
