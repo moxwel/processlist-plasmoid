@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Process List\n"
 "Report-Msgid-Bugs-To: https://github.com/moxwel/processlist-plasmoid/issues\n"
-"POT-Creation-Date: 2026-10-19 13:43-0300\n"
+"POT-Creation-Date: 2026-10-29 12:40-0300\n"
 "PO-Revision-Date: 2026-10-19 11:30-0300\n"
 "Last-Translator: moxwel\n"
 "Language-Team: Spanish\n"
@@ -132,21 +132,21 @@ msgid "Waiting for the first sample..."
 msgstr "Esperando la primera muestra..."
 
 #: contents/ui/ProcessMonitor.qml:32
-msgid "Stop %1 (%2)?"
-msgstr "¿Detener %1 (%2)?"
+msgid "Stop '%1' (PID: %2)?"
+msgstr "¿Detener '%1' (PID: %2)?"
 
-#: contents/ui/ProcessMonitor.qml:78
+#: contents/ui/ProcessMonitor.qml:73
 msgid "top produced no parsable rows"
 msgstr "top no devolvió filas legibles"
 
-#: contents/ui/ProcessMonitor.qml:150
+#: contents/ui/ProcessMonitor.qml:151
 msgid "Could not stop the process"
 msgstr "No se pudo detener el proceso"
 
-#: contents/ui/ProcessMonitor.qml:151
+#: contents/ui/ProcessMonitor.qml:152
 msgid "The process ended or changed since the list was taken"
 msgstr "El proceso terminó o cambió desde que se tomó la lista"
 
-#: contents/ui/ProcessRow.qml:73
-msgid "Stop %1 (%2)"
-msgstr "Detener %1 (%2)"
+#: contents/ui/ProcessRow.qml:75
+msgid "Stop '%1' (PID: %2)"
+msgstr "Detener '%1' (PID: %2)"
