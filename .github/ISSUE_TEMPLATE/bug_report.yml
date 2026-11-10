@@ -1,0 +1,51 @@
+name: Bug report
+description: Report something that does not work as expected
+labels: ["bug"]
+body:
+  - type: input
+    id: widget-version
+    attributes:
+      label: Widget version
+      description: The version shown in the About tab of the widget settings.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: plasma-version
+    attributes:
+      label: Plasma version
+      description: Run `plasmashell --version`.
+      placeholder: "6.8.2"
+    validations:
+      required: true
+  - type: input
+    id: distribution
+    attributes:
+      label: Distribution
+      placeholder: "Fedora 44"
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Say what you did and what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add the widget to the panel
+        2. ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Output of `journalctl --user -b | grep -i plasmashell`, trimmed to the relevant lines.
+      render: shell
